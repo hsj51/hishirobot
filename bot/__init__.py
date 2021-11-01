@@ -442,11 +442,33 @@ except KeyError:
     PHPSESSID = None
     CRYPT = None
 try:
+    HOSTS = getConfig('HOSTS')
+    if len(HOSTS) == 0:
+        raise KeyError
+    HOSTS = HOSTS.strip().split(',')
+except KeyError:
+    HOSTS = None
+try:
+    USERNAME = getConfig('USERNAME')
+    if len(USERNAME) == 0:
+        raise KeyError
+except KeyError:
+    USERNAME = None
+try:
+    PASSWORD = getConfig('PASSWORD')
+    if len(PASSWORD) == 0:
+        raise KeyError
+except KeyError:
+    PASSWORD = None
+try:
     TOKEN_PICKLE_URL = getConfig('TOKEN_PICKLE_URL')
     if len(TOKEN_PICKLE_URL) == 0:
         raise KeyError
-    try:
-        res = requests.get(TOKEN_PICKLE_URL)
+    else:
+        if USERNAME and PASSWORD and any(host in TOKEN_PICKLE_URL for host in HOSTS):
+            res = requests.get(TOKEN_PICKLE_URL, auth=(USERNAME, PASSWORD))
+        else:
+            res = requests.get(TOKEN_PICKLE_URL)
         if res.status_code == 200:
             with open('token.pickle', 'wb+') as f:
                 f.write(res.content)
@@ -456,33 +478,36 @@ try:
     except Exception as e:
         logging.error(str(e))
 except KeyError:
-    pass
+    TOKEN_PICKLE_URL = None
 try:
     ACCOUNTS_ZIP_URL = getConfig('ACCOUNTS_ZIP_URL')
     if len(ACCOUNTS_ZIP_URL) == 0:
         raise KeyError
     else:
-        try:
+        if USERNAME and PASSWORD and any(host in TOKEN_PICKLE_URL for host in HOSTS):
+            res = requests.get(ACCOUNTS_ZIP_URL, auth=(USERNAME, PASSWORD))
+        else:
             res = requests.get(ACCOUNTS_ZIP_URL)
-            if res.status_code == 200:
-                with open('accounts.zip', 'wb+') as f:
-                    f.write(res.content)
-                    f.close()
-            else:
-                logging.error(f"Failed to download accounts.zip, link got HTTP response: {res.status_code}")
-        except Exception as e:
-            logging.error(str(e))
+        if res.status_code == 200:
+            with open('accounts.zip', 'wb+') as f:
+                f.write(res.content)
+                f.close()
+        else:
+            logging.error(f"Failed to download accounts.zip {res.status_code}")
             raise KeyError
-        subprocess.run(["unzip", "-q", "-o", "accounts.zip"])
+        subprocess.run(["unzip", "-qoj", "accounts.zip", "-d", "accounts"])
         os.remove("accounts.zip")
 except KeyError:
-    pass
+    ACCOUNTS_ZIP_URL = None
 try:
     MULTI_SEARCH_URL = getConfig('MULTI_SEARCH_URL')
     if len(MULTI_SEARCH_URL) == 0:
-        raise KeyError
-    try:
-        res = requests.get(MULTI_SEARCH_URL)
+        MULTI_SEARCH_URL = None
+    else:
+        if USERNAME and PASSWORD and any(host in TOKEN_PICKLE_URL for host in HOSTS):
+            res = requests.get(MULTI_SEARCH_URL, auth=(USERNAME, PASSWORD))
+        else:
+            res = requests.get(MULTI_SEARCH_URL)
         if res.status_code == 200:
             with open('drive_folder', 'wb+') as f:
                 f.write(res.content)
@@ -492,13 +517,16 @@ try:
     except Exception as e:
         logging.error(str(e))
 except KeyError:
-    pass
+    MULTI_SEARCH_URL = None
 try:
     YT_COOKIES_URL = getConfig('YT_COOKIES_URL')
     if len(YT_COOKIES_URL) == 0:
         raise KeyError
     try:
-        res = requests.get(YT_COOKIES_URL)
+        if USERNAME and PASSWORD and any(host in TOKEN_PICKLE_URL for host in HOSTS):
+            res = requests.get(MULTI_SEARCH_URL, auth=(USERNAME, PASSWORD))
+        else:
+            res = requests.get(YT_COOKIES_URL)
         if res.status_code == 200:
             with open('cookies.txt', 'wb+') as f:
                 f.write(res.content)
