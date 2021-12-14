@@ -340,7 +340,7 @@ class GoogleDriveHelper:
         while True:
             response = self.__service.files().list(supportsTeamDrives=True,
                                                    includeTeamDriveItems=True,
-                                                   q=f"'{folder_id}' in parents",
+                                                   q=f"'{folder_id}' in parents and trashed = false",
                                                    spaces='drive',
                                                    pageSize=200,
                                                    fields='nextPageToken, files(id, name, mimeType, size, shortcutDetails)',
