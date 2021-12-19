@@ -118,7 +118,8 @@ def rss_monitor(context):
                         context.bot.send_message(CHAT_ID, feed_info, parse_mode='HTMl')
                     else:
                         try:
-                            rss_session.send_message(CHAT_ID, feed_info)
+                            sent_message = rss_session.send_message(CHAT_ID, feed_info)
+                            rss_session.send_message(CHAT_ID, '/qbmirror', reply_to_message_id = sent_message.message_id)
                         except FloodWait as f:
                             LOGGER.info(f)
                             break
