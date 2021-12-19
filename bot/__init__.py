@@ -445,7 +445,7 @@ try:
     HOSTS = getConfig('HOSTS')
     if len(HOSTS) == 0:
         raise KeyError
-    HOSTS = HOSTS.strip().split(',')
+    HOSTS = HOSTS.strip().split()
 except KeyError:
     HOSTS = None
 try:
@@ -475,8 +475,6 @@ try:
                 f.close()
         else:
             logging.error(f"Failed to download token.pickle, link got HTTP response: {res.status_code}")
-    except Exception as e:
-        logging.error(str(e))
 except KeyError:
     TOKEN_PICKLE_URL = None
 try:
@@ -514,8 +512,6 @@ try:
                 f.close()
         else:
             logging.error(f"Failed to download drive_folder, link got HTTP response: {res.status_code}")
-    except Exception as e:
-        logging.error(str(e))
 except KeyError:
     MULTI_SEARCH_URL = None
 try:
