@@ -114,12 +114,10 @@ def rss_monitor(context):
                     feed_count += 1
                 for x in range(len(feed_urls)):
                     feed_info = f"{CUSTOM_MESSAGES}\n<b>{feed_titles[x]}</b>\n{feed_urls[x]}"
-                    if rss_session is None:
-                        context.bot.send_message(CHAT_ID, feed_info, parse_mode='HTMl')
-                    else:
+                    sent_message = context.bot.send_message(CHAT_ID, feed_info, parse_mode='HTMl')
+                    if rss_session:
                         try:
-                            sent_message = rss_session.send_message(CHAT_ID, feed_info)
-                            rss_session.send_message(CHAT_ID, '/qbmirror', reply_to_message_id = sent_message.message_id)
+                            rss_session.send_message(CHAT_ID, '/qbmirror' , reply_to_message_id = sent_message.message_id)
                         except FloodWait as f:
                             LOGGER.info(f)
                             break
